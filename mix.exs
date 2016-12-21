@@ -20,6 +20,7 @@ defmodule Commanded.Mixfile do
     [
       applications: [
         :logger,
+        :extreme,
         :eventstore,
         :poison,
         :uuid
@@ -34,10 +35,11 @@ defmodule Commanded.Mixfile do
   defp deps do
     [
       {:eventstore, "~> 0.6"},
+      {:extreme, "~> 0.7.1"},
       {:ex_doc, "~> 0.14", only: :dev},
       {:markdown, github: "devinus/markdown", only: :dev},
       {:mix_test_watch, "~> 0.2", only: :dev},
-      {:poison, "~> 3.0"},
+      {:poison, "~> 2.2"},
       {:uuid, "~> 1.1"},
       # devs
       {:dialyxir, "~> 0.3.5", only: :dev},   # simplify dialyzer, type: mix dialyzer.plt first

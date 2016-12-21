@@ -44,7 +44,6 @@ defmodule Commanded.Aggregates.PersistenceTest do
 
     events = ExampleAggregate.append_items(aggregate, 6)
     res = Persistence.persist_events(events, "id-02", 0)
-    IO.inspect res
 
     res = Commanded.Aggregates.Persistence.apply_events(ExampleAggregate, aggregate, events)
 

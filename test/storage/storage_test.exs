@@ -38,6 +38,16 @@ defmodule Commanded.Storage.StorageTest do
       ExampleAggregate.append_items(aggregate, count)
   end
 
+  test "should append events to stream" do
+    evts = ExampleAggregate.append_items(%ExampleAggregate{last_index: 0}, 1)
+    driver = Application.get_env(:commanded, Commanded.Storage, [])
+    IO.inspect driver
+    res = Commanded.Storage.append_to_stream("storage-test-01", 0, evts)
+    IO.inspect res
+
+    assert 1 == 1
+
+  end
 
   test "should be true" do
     assert 1 == 1
