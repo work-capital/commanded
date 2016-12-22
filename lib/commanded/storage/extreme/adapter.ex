@@ -5,6 +5,7 @@ defmodule Commanded.Storage.Extreme.Adapter do
   Note that the Engine supervisor starts the driver naming it as 'EventStore'.
   """
   alias Commanded.Storage.Extreme.Mapper
+  alias Extreme.Messages.WriteEventsCompleted
 
   @behaviour Commanded.Storage.Adapter
   @extreme Commanded.Extreme  # the pid name we called it on Commanded.Storage.Extreme.Connection
@@ -22,10 +23,10 @@ defmodule Commanded.Storage.Extreme.Adapter do
   @doc "Save a list of events to the stream."
   def append_to_stream(stream_id, expected_version,  pending_events) do
     correlation_id = UUID.uuid4
+    # attention, erlangish pattern matching (^)
     message = Mapper.map_write_events(stream_id, pending_events)
-    res = Extreme.execute(@extreme, message)
-    IO.inspect message
-    # :ok = EventStore.append_to_stream(stream_id, expected_version, event_data)
+    {:ok, %WriteEventsCompleted{last_event_number: ^expected_version}} =
+      Extreme.execute(@extreme, message)
   end
 
 
