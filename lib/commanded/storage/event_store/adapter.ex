@@ -23,6 +23,7 @@ defmodule Commanded.Storage.EventStore.Adapter do
 
   @doc "Read stream, transforming messages in an event list ready for replay"
   def read_stream_forward(stream_id, start_version, read_event_batch_size) do
+    # we add +1 to work as extreme driver
     case EventStore.read_stream_forward(stream_id, start_version, read_event_batch_size) do
       {:ok, batch} ->
         {:ok, Mapper.map_from_recorded_events(batch)}

@@ -2,7 +2,7 @@ use Mix.Config
 
 # dependency injection from config files
 config :commanded, Commanded.Storage,
-  adapter: Commanded.Storage.Extreme.Adapter
+  adapter: Commanded.Storage.EventStore.Adapter
   #adapter: Commanded.Storage.EventStore.Adapter
 
 

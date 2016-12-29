@@ -25,43 +25,39 @@ defmodule Commanded.Storage.Extreme.Adapter do
     correlation_id = UUID.uuid4
     # attention, erlangish pattern matching (^)
     message = Mapper.map_write_events(stream_id, pending_events)
-    {:ok, %WriteEventsCompleted{last_event_number: ^expected_version}} =
+    version = expected_version + 1 # postgre driver counts + 1, so let's fix adding 1 here
+    {:ok, %WriteEventsCompleted{first_event_number: ^version}} =
       Extreme.execute(@extreme, message)
+    :ok
   end
 
 
   @doc "Read stream, transforming messages in an event list ready for replay"
   def read_stream_forward(stream_id, start_version, read_event_batch_size) do
-
-    # case EventStore.read_stream_forward(stream_id, start_version, read_event_batch_size) do
-    #   {:ok, batch} ->
-    #     {:ok, Mapper.map_from_recorded_events(batch)}
-    #   {:error, reason} ->
-    #     {:error, reason}
-    # end
+    message = Mapper.map_read_stream(stream_id, start_version, read_event_batch_size)
+    case Extreme.execute(@extreme, message) do
+      {:ok, events} -> Mapper.extract_events({:ok, events})
+      {:error, reason} -> {:error, reason}
+    end
   end
 
   @doc "Persist state of an aggregate or process manager"
   def persist_state(stream_id, version, module, state) do
-
-    # :ok = EventStore.record_snapshot(%EventStore.Snapshots.SnapshotData{
-    #     source_uuid: stream_id,
-    #     source_version: version,
-    #     source_type: Atom.to_string(module),
-    #     data: state
-    #   })
+    version2 = version + 1 # postgre driver counts + 1, so let's fix adding 1 here
+    message  = Mapper.map_write_state(stream_id, version2, module, state)
+    {:ok, %WriteEventsCompleted{first_event_number: ^version2}} =
+      Extreme.execute(@extreme, message)
+    :ok
   end
 
 
   @doc "Fetch state of an aggregate or process manager"
   def fetch_state(stream_id, state) do
-
-    # case EventStore.read_snapshot(stream_id) do
-    #     {:ok, snapshot} ->
-    #       {:ok, snapshot.data, snapshot.source_version}
-    #     {:error, :snapshot_not_found} ->
-    #       {:error, :snapshot_not_found}
-    # end
+    message = Mapper.map_read_backwards(stream_id)
+    case Extreme.execute(@extreme, message) do
+      {:ok, events} -> Mapper.extract_events({:ok, events})
+      {:error, reason} -> {:error, reason}
+    end
   end
 
 end

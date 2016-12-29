@@ -114,7 +114,8 @@ defmodule Commanded.ProcessManagers.ProcessRouter do
 
   defp handle_event(%EventStore.RecordedEvent{data: data, event_id: event_id} = event, 
     %State{process_manager_name: process_manager_name, process_manager_module: process_manager_module, 
-    process_managers: process_managers} = state) do
+    process_managers: process_managers} = state)
+    do
       {process_uuid, process_manager} = case process_manager_module.interested?(data) do
         {:start, process_uuid} -> {process_uuid, start_process_manager(process_uuid, state)}
         {:continue, process_uuid} -> {process_uuid, continue_process_manager(process_uuid, state)}
